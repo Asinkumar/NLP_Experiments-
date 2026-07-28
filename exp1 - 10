@@ -1,0 +1,528 @@
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+# Download required NLTK resources
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
+# Get user input
+text = input("Enter a sentence: ")
+
+# Tokenization
+tokens = word_tokenize(text)
+
+# Stemming
+stemmer = PorterStemmer()
+stemmed_words = [stemmer.stem(word) for word in tokens]
+
+# Lemmatization
+lemmatizer = WordNetLemmatizer()
+lemmatized_words = [lemmatizer.lemmatize(word) for word in tokens]
+
+# Display results
+print("\n===== OUTPUT =====")
+print("Original Text:")
+print(text)
+
+print("\nTokens:")
+print(tokens)
+
+print("\nStemmed Words:")
+print(stemmed_words)
+
+print("\nLemmatized Words:")
+print(lemmatized_words)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+exp-2 
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
+
+# Download required NLTK resources
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger_eng')
+
+# Get input from user
+text = input("Enter a sentence: ")
+
+# Tokenize sentence
+tokens = word_tokenize(text)
+
+# Perform POS tagging
+tagged_words = pos_tag(tokens)
+
+# Display tokens
+print("\nTokens:")
+print(tokens)
+
+# Display POS tags
+print("\nPOS Tags:")
+for word, tag in tagged_words:
+    print(word, "->", tag)
+
+# Simple tag meanings
+print("\nTag Meanings:")
+print("NN  -> Noun")
+print("NNS -> Plural Noun")
+print("VB  -> Verb")
+print("VBD -> Verb (Past Tense)")
+print("VBG -> Verb (Gerund)")
+print("JJ  -> Adjective")
+print("RB  -> Adverb")
+print("PRP -> Pronoun")
+print("DT  -> Determiner")
+
+# Count tagged words
+print("\nTotal Words:", len(tokens))
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+import nltk
+from nltk.corpus import wordnet as wn
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import KMeans
+
+# Download required NLTK resources
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
+# Get headlines from user
+headlines = []
+
+n = int(input("Enter number of headlines: "))
+
+for i in range(n):
+    headline = input(f"Enter headline {i+1}: ")
+    headlines.append(headline)
+
+# Convert text to TF-IDF vectors
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(headlines)
+
+# Cosine Similarity
+print("\nCosine Similarity Matrix:")
+print(cosine_similarity(X))
+
+# K-Means Clustering
+kmeans = KMeans(n_clusters=2, random_state=0, n_init=10)
+kmeans.fit(X)
+
+print("\nHeadline Clusters:")
+for i in range(len(headlines)):
+    print(headlines[i], "-> Cluster", kmeans.labels_[i])
+
+# WordNet Similarity
+w1 = input("\nEnter first word: ")
+w2 = input("Enter second word: ")
+
+s1 = wn.synsets(w1)
+s2 = wn.synsets(w2)
+
+if s1 and s2:
+    similarity = s1[0].path_similarity(s2[0])
+    print("WordNet Similarity:", similarity)
+else:
+    print("Similarity not found")
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.decomposition import TruncatedSVD
+
+# Get documents from user
+docs = []
+
+n = int(input("Enter number of documents: "))
+
+for i in range(n):
+    docs.append(input(f"Enter document {i+1}: "))
+
+# Get search query
+query = input("\nEnter search query: ")
+
+# TF-IDF Vectorization
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(docs)
+
+# Query Vector
+query_vec = vectorizer.transform([query])
+
+# Cosine Similarity using TF-IDF
+scores = cosine_similarity(query_vec, X)
+
+print("\nTF-IDF Similarity Scores:")
+for i, s in enumerate(scores[0]):
+    print("Document", i + 1, ":", round(s, 3))
+
+# LSA using Truncated SVD
+svd = TruncatedSVD(n_components=2, random_state=42)
+X_lsa = svd.fit_transform(X)
+query_lsa = svd.transform(query_vec)
+
+# Cosine Similarity using LSA
+lsa_scores = cosine_similarity(query_lsa, X_lsa)
+
+print("\nLSA Similarity Scores:")
+for i, s in enumerate(lsa_scores[0]):
+    print("Document", i + 1, ":", round(s, 3))
+
+# Most Relevant Document
+best = np.argmax(lsa_scores)
+
+print("\nMost Relevant Document:")
+print(docs[best])
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+import nltk
+from nltk import word_tokenize, pos_tag
+
+# Download required NLTK resources
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger_eng')
+
+# Get input from user
+text = input("Enter legal text: ")
+
+# Tokenize the text
+tokens = word_tokenize(text)
+
+# Perform POS tagging
+tags = pos_tag(tokens)
+
+print("\nDetected Named Entities:")
+
+count = 0
+
+# Detect Proper Nouns (NNP) as Named Entities
+for word, tag in tags:
+    if tag == "NNP":
+        print(word, "-> ENTITY")
+        count += 1
+
+# Get actual number of entities
+actual = int(input("\nEnter actual number of entities: "))
+
+# Calculate accuracy
+if max(count, actual) == 0:
+    accuracy = 100
+else:
+    accuracy = (min(count, actual) / max(count, actual)) * 100
+
+# Display results
+print("\nPredicted Entities:", count)
+print("NER Accuracy:", round(accuracy, 2), "%")
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+import nltk
+from nltk.tokenize import word_tokenize
+from sklearn.metrics import precision_score, recall_score, f1_score
+
+# Download required NLTK resources
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
+# Keywords indicating biomedical relations
+keywords = ["treats", "reduces", "controls", "helps"]
+
+# Get input from user
+sentence = input("Enter biomedical sentence: ")
+actual = int(input("Actual Relation (1/0): "))
+
+# Tokenize sentence
+tokens = word_tokenize(sentence.lower())
+
+print("\nTokens:")
+print(tokens)
+
+# Predict relation
+predicted = 0
+
+for word in tokens:
+    if word in keywords:
+        predicted = 1
+        break
+
+print("\nPredicted Relation:", predicted)
+
+# Evaluate
+y_true = [actual]
+y_pred = [predicted]
+
+precision = precision_score(y_true, y_pred, zero_division=0)
+recall = recall_score(y_true, y_pred, zero_division=0)
+f1 = f1_score(y_true, y_pred, zero_division=0)
+
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1-Score:", f1)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+import nltk
+from nltk.util import ngrams
+from nltk.probability import FreqDist
+from nltk.tag import hmm
+from nltk.corpus import treebank
+
+# Download required datasets
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('treebank')
+
+# -----------------------------
+# Input Tweet
+# -----------------------------
+tweet = input("Enter a tweet: ")
+
+# Tokenization
+tokens = nltk.word_tokenize(tweet.lower())
+
+print("\nTokens:")
+print(tokens)
+
+# -----------------------------
+# N-Gram Language Model
+# -----------------------------
+print("\n========== N-GRAM MODEL ==========")
+
+# Unigrams
+unigrams = list(ngrams(tokens, 1))
+print("\nUnigrams:")
+print(unigrams)
+
+# Bigrams
+bigrams = list(ngrams(tokens, 2))
+print("\nBigrams:")
+print(bigrams)
+
+# Trigrams
+trigrams = list(ngrams(tokens, 3))
+print("\nTrigrams:")
+print(trigrams)
+
+# Word Frequency
+fd = FreqDist(tokens)
+
+print("\nWord Frequencies:")
+for word, freq in fd.items():
+    print(word, ":", freq)
+
+# -----------------------------
+# Hidden Markov Model (HMM)
+# -----------------------------
+print("\n========== HMM MODEL ==========")
+
+# Train HMM using Treebank corpus
+train_data = treebank.tagged_sents()[:3000]
+
+trainer = hmm.HiddenMarkovModelTrainer()
+hmm_tagger = trainer.train(train_data)
+
+# Predict POS tags
+tagged_sentence = hmm_tagger.tag(tokens)
+
+print("\nHMM POS Tagging:")
+for word, tag in tagged_sentence:
+    print(word, "->", tag)
+
+# -----------------------------
+# Comparison
+# -----------------------------
+print("\n========== COMPARISON ==========")
+
+print("\nN-Gram Model")
+print("- Learns word sequences.")
+print("- Predicts the next word based on previous words.")
+print("- Used for text generation and language modeling.")
+
+print("\nHMM Model")
+print("- Predicts Part-of-Speech (POS) tags.")
+print("- Uses transition and emission probabilities.")
+print("- Used for sequence labeling tasks.")
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+import nltk
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.manifold import TSNE
+
+# Get customer reviews
+reviews = []
+
+n = int(input("Enter number of reviews: "))
+
+for i in range(n):
+    reviews.append(input(f"Enter review {i+1}: "))
+
+# Convert text to Bag of Words
+vectorizer = CountVectorizer(stop_words='english')
+X = vectorizer.fit_transform(reviews)
+
+# Apply LDA
+lda = LatentDirichletAllocation(n_components=2, random_state=42)
+lda.fit(X)
+
+# Get feature names
+words = vectorizer.get_feature_names_out()
+
+print("\n========== TOPICS ==========")
+
+for i, topic in enumerate(lda.components_):
+    print(f"\nTopic {i+1}:")
+    top_words = topic.argsort()[-5:][::-1]   # Top 5 words
+    for j in top_words:
+        print(words[j])
+
+# Convert sparse matrix to dense
+X_dense = X.toarray()
+
+# Apply t-SNE
+tsne = TSNE(
+    n_components=2,
+    random_state=42,
+    perplexity=min(2, len(reviews)-1)
+)
+
+X_tsne = tsne.fit_transform(X_dense)
+
+print("\nt-SNE Coordinates:")
+for i, point in enumerate(X_tsne):
+    print(f"Review {i+1}: {point}")
+
+# Plot
+plt.figure(figsize=(8, 6))
+plt.scatter(X_tsne[:, 0], X_tsne[:, 1])
+
+for i in range(len(reviews)):
+    plt.text(X_tsne[i, 0], X_tsne[i, 1], f"R{i+1}")
+
+plt.title("t-SNE Visualization of Customer Reviews")
+plt.xlabel("Dimension 1")
+plt.ylabel("Dimension 2")
+plt.grid(True)
+
+plt.show()
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Store documents and labels
+docs = []
+labels = []
+
+# Get input
+n = int(input("Enter number of documents: "))
+
+for i in range(n):
+    docs.append(input(f"Enter document {i+1}: "))
+    labels.append(input(f"Enter category {i+1}: "))
+
+# -----------------------------
+# Rule-Based Classification
+# -----------------------------
+rule_pred = []
+
+for doc in docs:
+    doc = doc.lower()
+
+    if "contract" in doc:
+        rule_pred.append("contract")
+    elif "judgment" in doc:
+        rule_pred.append("judgment")
+    else:
+        rule_pred.append("agreement")
+
+# Rule-Based Accuracy
+rule_acc = accuracy_score(labels, rule_pred)
+
+# -----------------------------
+# Maximum Entropy (Logistic Regression)
+# -----------------------------
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(docs)
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X, labels)
+
+ml_pred = model.predict(X)
+ml_acc = accuracy_score(labels, ml_pred)
+
+# -----------------------------
+# Output
+# -----------------------------
+print("\nRule-Based Predictions:")
+for doc, pred in zip(docs, rule_pred):
+    print(f"{doc} -> {pred}")
+
+print("\nMaximum Entropy Predictions:")
+for doc, pred in zip(docs, ml_pred):
+    print(f"{doc} -> {pred}")
+
+print("\nRule-Based Accuracy:", round(rule_acc, 2))
+print("Maximum Entropy Accuracy:", round(ml_acc, 2))
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+
+# Store social media posts
+posts = []
+
+# Get number of posts
+n = int(input("Enter number of posts: "))
+
+for i in range(n):
+    post = input(f"Enter post {i+1}: ")
+    posts.append(post)
+
+# Get number of clusters
+k = int(input("Enter number of clusters: "))
+
+# Convert text into TF-IDF vectors
+vectorizer = TfidfVectorizer(
+    stop_words='english',
+    ngram_range=(1, 2)
+)
+
+X = vectorizer.fit_transform(posts)
+
+# Apply K-Means Clustering
+model = KMeans(
+    n_clusters=k,
+    random_state=42,
+    n_init=10
+)
+
+model.fit(X)
+
+labels = model.labels_
+
+# Display cluster results
+print("\n========== CLUSTER RESULTS ==========\n")
+
+for i in range(len(posts)):
+    print("Post:", posts[i])
+    print("Cluster:", labels[i])
+    print()
+
+# Display important keywords
+terms = vectorizer.get_feature_names_out()
+
+print("========== IMPORTANT KEYWORDS ==========\n")
+
+for i in range(k):
+    center = model.cluster_centers_[i]
+    top = center.argsort()[-5:][::-1]   # Top 5 keywords
+
+    print("Cluster", i)
+
+    for j in top:
+        print(terms[j])
+
+    print()
+
+# Marketing Insight
+print("========== MARKETING INSIGHT ==========")
+print("Similar customer opinions are grouped together.")
+print("Clusters help identify product trends and issues.")
